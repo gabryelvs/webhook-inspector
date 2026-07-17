@@ -68,3 +68,14 @@ def test_old_bins_expire_on_create(client):
         assert db.get(Bin, new_bin_id) is not None
     finally:
         db.close()
+
+
+def test_bin_creation_survives_ttl_cleanup_failure(client, monkeypatch):
+    from app.routers import bins as bins_mod
+
+    def boom(db):
+        raise RuntimeError("cleanup exploded")
+
+    monkeypatch.setattr(bins_mod, "_expire_old_bins", boom)
+    res = client.post("/api/bins")
+    assert res.status_code == 201

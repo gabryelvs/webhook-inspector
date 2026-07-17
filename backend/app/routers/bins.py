@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -10,6 +11,7 @@ from app.db import get_db
 from app.models import Bin, CapturedRequest
 from app.schemas import BinOut
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/bins", tags=["bins"])
 limiter = Limiter(key_func=get_remote_address)
 
@@ -29,7 +31,11 @@ def _expire_old_bins(db: Session) -> None:
 @router.post("", response_model=BinOut, status_code=201)
 @limiter.limit("10/minute")
 def create_bin(request: Request, db: Session = Depends(get_db)):
-    _expire_old_bins(db)
+    try:
+        _expire_old_bins(db)
+    except Exception:
+        db.rollback()
+        logger.exception("bin TTL cleanup failed; continuing with bin creation")
     b = Bin()
     db.add(b)
     db.commit()
