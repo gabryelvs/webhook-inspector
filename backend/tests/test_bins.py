@@ -1,5 +1,7 @@
+from datetime import datetime, timedelta, timezone
+
 from app.db import SessionLocal
-from app.models import Bin
+from app.models import Bin, CapturedRequest
 
 
 def test_bin_model_roundtrip(client):
@@ -36,3 +38,33 @@ def test_get_bin_404(client):
     res = client.get("/api/bins/doesnotexist")
     assert res.status_code == 404
     assert res.json() == {"detail": "bin not found"}
+
+
+def test_old_bins_expire_on_create(client):
+    old_bin_id = client.post("/api/bins").json()["id"]
+
+    db = SessionLocal()
+    try:
+        old_bin = db.get(Bin, old_bin_id)
+        old_bin.created_at = datetime.now(timezone.utc) - timedelta(days=8)
+        db.add(CapturedRequest(bin_id=old_bin_id, method="GET", path="/"))
+        db.commit()
+    finally:
+        db.close()
+
+    res = client.post("/api/bins")
+    assert res.status_code == 201
+    new_bin_id = res.json()["id"]
+
+    db = SessionLocal()
+    try:
+        assert db.get(Bin, old_bin_id) is None
+        assert (
+            db.query(CapturedRequest)
+            .filter(CapturedRequest.bin_id == old_bin_id)
+            .count()
+            == 0
+        )
+        assert db.get(Bin, new_bin_id) is not None
+    finally:
+        db.close()
