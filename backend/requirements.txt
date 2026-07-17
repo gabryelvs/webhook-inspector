@@ -5,3 +5,4 @@ pydantic==2.*
 psycopg2-binary==2.9.*
 pytest==8.*
 httpx==0.28.*
+slowapi==0.1.*

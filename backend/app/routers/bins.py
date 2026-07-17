@@ -1,15 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.db import get_db
 from app.models import Bin
 from app.schemas import BinOut
 
 router = APIRouter(prefix="/api/bins", tags=["bins"])
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("", response_model=BinOut, status_code=201)
-def create_bin(db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def create_bin(request: Request, db: Session = Depends(get_db)):
     b = Bin()
     db.add(b)
     db.commit()
