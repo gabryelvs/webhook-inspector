@@ -7,6 +7,9 @@ from sqlalchemy.pool import StaticPool
 from app.models import Base
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./dev.db")
+# Fly's `postgres attach` sets a postgres:// scheme; SQLAlchemy needs the driver-qualified form
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
 
 connect_args: dict = {}
 engine_kwargs: dict = {}
