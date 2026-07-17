@@ -38,7 +38,7 @@ async def capture(
             headers=dict(request.headers),
             query=dict(request.query_params),
             body=body_text,
-            content_type=request.headers.get("content-type"),
+            content_type=(request.headers.get("content-type") or "")[:255] or None,
             source_ip=request.client.host if request.client else None,
             truncated=truncated,
         )

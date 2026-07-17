@@ -66,6 +66,15 @@ def test_capture_truncates_large_body(client):
     assert len(r.body) == 1_000_000
 
 
+def test_capture_truncates_long_content_type(client):
+    bin_id = _make_bin(client)
+    long_ct = "application/" + "x" * 300
+    res = client.post(f"/in/{bin_id}", content="{}", headers={"Content-Type": long_ct})
+    assert res.status_code == 200
+    r = _stored(bin_id)[0]
+    assert len(r.content_type) == 255
+
+
 def test_capture_all_methods(client):
     bin_id = _make_bin(client)
     for method in ["GET", "POST", "PUT", "PATCH", "DELETE"]:
