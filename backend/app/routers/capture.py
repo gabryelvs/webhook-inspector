@@ -23,14 +23,14 @@ async def capture(
     path: str = "",
     db: Session = Depends(get_db),
 ):
-    if db.get(Bin, bin_id) is None:
-        raise HTTPException(status_code=404, detail="bin not found")
-
-    raw = await request.body()
-    truncated = len(raw) > MAX_BODY_BYTES
-    body_text = raw[:MAX_BODY_BYTES].decode("utf-8", errors="replace")
-
     try:
+        if db.get(Bin, bin_id) is None:
+            raise HTTPException(status_code=404, detail="bin not found")
+
+        raw = await request.body()
+        truncated = len(raw) > MAX_BODY_BYTES
+        body_text = raw[:MAX_BODY_BYTES].decode("utf-8", errors="replace")
+
         captured = CapturedRequest(
             bin_id=bin_id,
             method=request.method,
@@ -45,8 +45,10 @@ async def capture(
         db.add(captured)
         db.commit()
         _prune(db, bin_id)
+    except HTTPException:
+        raise
     except Exception:
-        logger.exception("failed to persist captured request for bin %s", bin_id)
+        logger.exception("failed to capture request for bin %s", bin_id)
 
     return {"ok": True}
 

@@ -72,3 +72,15 @@ def test_capture_all_methods(client):
         res = client.request(method, f"/in/{bin_id}/x")
         assert res.status_code == 200
     assert len(_stored(bin_id)) == 5
+
+
+def test_capture_returns_200_when_db_fails(client, monkeypatch):
+    from sqlalchemy.orm import Session
+
+    def boom(self, *args, **kwargs):
+        raise RuntimeError("db down")
+
+    monkeypatch.setattr(Session, "get", boom)
+    res = client.post("/in/anything", json={})
+    assert res.status_code == 200
+    assert res.json() == {"ok": True}
