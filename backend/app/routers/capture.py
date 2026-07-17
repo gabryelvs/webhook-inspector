@@ -27,9 +27,17 @@ async def capture(
         if db.get(Bin, bin_id) is None:
             raise HTTPException(status_code=404, detail="bin not found")
 
-        raw = await request.body()
-        truncated = len(raw) > MAX_BODY_BYTES
-        body_text = raw[:MAX_BODY_BYTES].decode("utf-8", errors="replace")
+        raw = bytearray()
+        truncated = False
+        async for chunk in request.stream():
+            if len(raw) < MAX_BODY_BYTES:
+                need = MAX_BODY_BYTES - len(raw)
+                raw.extend(chunk[:need])
+                if len(chunk) > need:
+                    truncated = True
+            elif chunk:
+                truncated = True
+        body_text = bytes(raw).decode("utf-8", errors="replace")
 
         captured = CapturedRequest(
             bin_id=bin_id,
