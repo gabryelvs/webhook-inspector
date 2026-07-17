@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { fetchRequests } from "../api";
 import type { CapturedRequest } from "../types";
 import RequestList from "../components/RequestList";
+import RequestDetail from "../components/RequestDetail";
 
 const POLL_MS = 2000;
 
@@ -60,7 +61,7 @@ export default function BinPage() {
         </aside>
         <section className="flex-1 overflow-y-auto bg-gray-50 p-4">
           {selected ? (
-            <pre className="text-sm whitespace-pre-wrap">{selected.body || "(empty body)"}</pre>
+            <RequestDetail request={selected} />
           ) : (
             <p className="text-gray-500">No request selected.</p>
           )}
