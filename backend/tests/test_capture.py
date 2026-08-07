@@ -93,3 +93,23 @@ def test_capture_returns_200_when_db_fails(client, monkeypatch):
     res = client.post("/in/anything", json={})
     assert res.status_code == 200
     assert res.json() == {"ok": True}
+
+
+def test_capture_uses_forwarded_client_ip(client):
+    bin_id = _make_bin(client)
+    client.post(
+        f"/in/{bin_id}",
+        json={},
+        headers={"Fly-Client-IP": "203.0.113.9"},
+    )
+    assert _stored(bin_id)[0].source_ip == "203.0.113.9"
+
+
+def test_capture_falls_back_to_x_forwarded_for(client):
+    bin_id = _make_bin(client)
+    client.post(
+        f"/in/{bin_id}",
+        json={},
+        headers={"X-Forwarded-For": "198.51.100.4, 66.241.125.129"},
+    )
+    assert _stored(bin_id)[0].source_ip == "198.51.100.4"

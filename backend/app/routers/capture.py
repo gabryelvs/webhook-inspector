@@ -47,7 +47,7 @@ async def capture(
             query=dict(request.query_params),
             body=body_text,
             content_type=(request.headers.get("content-type") or "")[:255] or None,
-            source_ip=request.client.host if request.client else None,
+            source_ip=_client_ip(request),
             truncated=truncated,
         )
         db.add(captured)
@@ -59,6 +59,17 @@ async def capture(
         logger.exception("failed to capture request for bin %s", bin_id)
 
     return {"ok": True}
+
+
+def _client_ip(request: Request) -> str | None:
+    # Behind Fly's proxy request.client is the proxy itself, so trust its forwarding headers.
+    fly_ip = request.headers.get("fly-client-ip")
+    if fly_ip:
+        return fly_ip[:45]
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()[:45]
+    return request.client.host if request.client else None
 
 
 def _prune(db: Session, bin_id: str) -> None:
