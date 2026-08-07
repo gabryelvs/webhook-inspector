@@ -1,10 +1,12 @@
 # Webhook Inspector
 
+**Live demo:** https://webhook-inspector-gv.fly.dev
+
 Inspect, debug, and (soon) replay webhooks. Create a bin, point any webhook
 at its URL, and watch requests arrive live in the browser.
 
 Built as a fullstack companion to
-[webhook-dispatcher](../webhook-dispatcher): one project sends webhooks
+[webhook-dispatcher](https://github.com/gabryelvs/webhook-dispatcher): one project sends webhooks
 reliably, this one helps you debug them.
 
 ## Features (v0.1)
