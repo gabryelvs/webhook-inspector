@@ -6,9 +6,18 @@ primary_region = "lhr"
 [http_service]
   internal_port = 8000
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = "suspend"
   auto_start_machines = true
-  min_machines_running = 0
+  # Keep one machine warm: a cold start makes the first visitor wait on both the
+  # machine boot and the Postgres wake-up, which surfaces as a 503.
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "20s"
+    method = "GET"
+    path = "/api/health"
 
 [[vm]]
   size = "shared-cpu-1x"
