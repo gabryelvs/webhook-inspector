@@ -4,4 +4,6 @@ __pycache__/
 dev.db
 node_modules/
 dist/
-.env
+backend/static/
+.env*
+.vercel

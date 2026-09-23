@@ -1,0 +1,23 @@
+[project]
+name = "webhook-inspector"
+version = "0.1.0"
+requires-python = ">=3.12"
+# Runtime-only dependencies for the Vercel deployment (root entrypoint:
+# main.py). Mirrors backend/requirements.txt minus pytest and httpx, which
+# are test-only and have no place in the deployed bundle. Vercel's Python
+# runtime installs from this file with `uv sync` (see uv.lock) once a
+# pyproject.toml is present, so backend/requirements.txt — unchanged, and
+# still driving CI and local dev — is no longer read for the deploy.
+dependencies = [
+    "fastapi==0.115.*",
+    "uvicorn[standard]==0.34.*",
+    "sqlalchemy==2.0.*",
+    "pydantic==2.*",
+    "psycopg2-binary==2.9.*",
+    "slowapi==0.1.*",
+]
+
+[tool.vercel.scripts]
+# Builds the React front end into backend/static after Vercel installs the
+# dependencies above.
+build = "bash scripts/vercel_build.sh"
