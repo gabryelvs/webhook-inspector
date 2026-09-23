@@ -1,4 +1,5 @@
 import logging
+import os
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import delete, select
@@ -7,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.client_ip import client_ip
 from app.db import get_db
 from app.models import Bin, CapturedRequest
+from app.platform_headers import strip_platform_headers
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["capture"])
@@ -44,7 +46,7 @@ async def capture(
             bin_id=bin_id,
             method=request.method,
             path="/" + path,
-            headers=dict(request.headers),
+            headers=strip_platform_headers(request.headers, on_vercel=bool(os.environ.get("VERCEL"))),
             query=dict(request.query_params),
             body=body_text,
             content_type=(request.headers.get("content-type") or "")[:255] or None,
