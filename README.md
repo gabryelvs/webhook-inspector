@@ -71,6 +71,11 @@ Postgres database:
   than the advertised 10/min — weaker than on a single long-lived container.
 - The UI polls every 2 s; on Vercel each poll is a separate function
   invocation, not a persistent connection.
+- Vercel adds its own request headers (`x-vercel-*`, which include the
+  sender's approximate location, plus `x-real-ip` and `x-forwarded-*`). On
+  Vercel these are removed before a request is stored, so a bin shows what
+  the sender sent. Vercel overwrites `X-Forwarded-For` and `X-Real-IP`, so a
+  sender's own values for those two can't be shown there.
 
 ## Development
 
