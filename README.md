@@ -43,7 +43,10 @@ Postgres database:
 
 - Vercel discovers the FastAPI `app` from the root `main.py`, which puts
   `backend/` on `sys.path` and re-exports the app from
-  `backend/app/main.py` unchanged.
+  `backend/app/main.py` unchanged. Runtime dependencies (no pytest/httpx)
+  are declared in the root `pyproject.toml` and locked in `uv.lock`;
+  `backend/requirements.txt` is unrelated to the deploy and keeps driving CI
+  and local backend dev.
 - `[tool.vercel.scripts].build` in `pyproject.toml` runs
   `scripts/vercel_build.sh`, which builds the front end and copies
   `frontend/dist` to `backend/static` — the same static-file layout the
