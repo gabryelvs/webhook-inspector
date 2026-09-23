@@ -5,15 +5,15 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 from slowapi import Limiter
-from slowapi.util import get_remote_address
 
+from app.client_ip import rate_limit_key
 from app.db import get_db
 from app.models import Bin, CapturedRequest
 from app.schemas import BinOut
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/bins", tags=["bins"])
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(key_func=rate_limit_key)
 
 BIN_TTL_DAYS = 7
 

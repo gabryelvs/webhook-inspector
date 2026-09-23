@@ -1,5 +1,7 @@
 # Webhook Inspector
 
+[![CI](https://github.com/gabryelvs/webhook-inspector/actions/workflows/ci.yml/badge.svg)](https://github.com/gabryelvs/webhook-inspector/actions/workflows/ci.yml)
+
 **Live demo:** https://webhook-inspector-gv.fly.dev
 
 Inspect, debug, and (soon) replay webhooks. Create a bin, point any webhook
@@ -15,12 +17,15 @@ reliably, this one helps you debug them.
 - Captures method, path, headers, query, body (1 MB cap), source IP
 - React UI: live request list (2 s polling), detail tabs (headers / body / query / raw)
 - Retention: last 500 requests per bin
+- Bin creation rate-limited to 10/min per client IP. Behind Fly's proxy the
+  client IP comes from the proxy-set `Fly-Client-IP` header (client-supplied
+  `X-Forwarded-For` is ignored); counters are in memory, per app instance
 - Single-container deploy: FastAPI serves the built React app
 
 ## Stack
 
 FastAPI · SQLAlchemy · PostgreSQL · React · TypeScript · Vite · Tailwind ·
-pytest · Vitest · Docker
+pytest · Vitest · Docker · GitHub Actions
 
 ## Run it
 
@@ -49,6 +54,10 @@ Tests:
 
     cd backend && .venv/Scripts/python -m pytest
     cd frontend && npm test
+
+CI (GitHub Actions, `.github/workflows/ci.yml`) runs on every pull request and
+push to master: pytest for the backend; lint, Vitest and a typechecked
+production build for the frontend.
 
 ## Roadmap
 
