@@ -1,0 +1,18 @@
+# Local-only artefacts that a Vercel build neither needs nor should upload.
+# frontend/src, package.json etc. are NOT listed here: scripts/vercel_build.sh
+# needs them to run `npm ci && npm run build` during the Vercel build itself.
+.venv
+backend/.venv
+node_modules
+frontend/node_modules
+backend/tests
+frontend/dist
+backend/static
+dev.db
+*.pyc
+__pycache__
+.pytest_cache
+.env
+.env.*
+.vercel
+docs

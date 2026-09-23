@@ -1,0 +1,5 @@
+[tool.vercel.scripts]
+# Builds the React front end into backend/static after Vercel installs
+# requirements.txt. Dependencies still come from requirements.txt at the
+# project root; this file exists only to hook the build script in.
+build = "bash scripts/vercel_build.sh"

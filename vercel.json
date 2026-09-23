@@ -1,0 +1,9 @@
+{
+  "framework": "fastapi",
+  "regions": ["lhr1"],
+  "functions": {
+    "main.py": {
+      "excludeFiles": "{backend/tests/**,docs/**,frontend/node_modules/**}"
+    }
+  }
+}
