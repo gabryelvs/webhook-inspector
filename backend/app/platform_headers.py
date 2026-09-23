@@ -2,7 +2,7 @@
 
 On Vercel, the edge network adds its own request headers before the app sees
 them: `x-vercel-*` (request id, and the sender's approximate city, region and
-latitude/longitude) plus `x-real-ip` and `x-forwarded-*`, which it overwrites
+latitude/longitude) plus `x-real-ip`, `x-forwarded-*` and `forwarded`, which it sets
 with its own values. See https://vercel.com/docs/headers/request-headers.
 Stored as-is, they would look like part of the webhook and would expose the
 sender's rough location to whoever holds the bin URL.
@@ -14,7 +14,14 @@ The client IP is still recorded separately, before stripping (see client_ip).
 
 from collections.abc import Mapping
 
-_VERCEL_ADDED = {"x-real-ip", "x-forwarded-for", "x-forwarded-host", "x-forwarded-proto", "x-forwarded-port"}
+_VERCEL_ADDED = {
+    "x-real-ip",
+    "x-forwarded-for",
+    "x-forwarded-host",
+    "x-forwarded-proto",
+    "x-forwarded-port",
+    "forwarded",  # RFC 7239; Vercel adds it with the client address
+}
 
 
 def strip_platform_headers(headers: Mapping[str, str], on_vercel: bool) -> dict[str, str]:

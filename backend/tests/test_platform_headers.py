@@ -24,6 +24,7 @@ VERCEL_ADDED = {
     "x-forwarded-for": "203.0.113.7",
     "x-forwarded-host": "example.vercel.app",
     "x-forwarded-proto": "https",
+    "forwarded": "for=203.0.113.7;proto=https",
 }
 
 
