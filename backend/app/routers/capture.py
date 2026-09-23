@@ -62,13 +62,12 @@ async def capture(
 
 
 def _client_ip(request: Request) -> str | None:
-    # Behind Fly's proxy request.client is the proxy itself, so trust its forwarding headers.
+    # Behind Fly's proxy request.client is the proxy itself. Fly-Client-IP is set
+    # by that proxy (overwriting any client-sent value), so it is trusted.
+    # X-Forwarded-For is not: its leftmost entry is whatever the client sent.
     fly_ip = request.headers.get("fly-client-ip")
     if fly_ip:
         return fly_ip[:45]
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()[:45]
     return request.client.host if request.client else None
 
 

@@ -105,11 +105,14 @@ def test_capture_uses_forwarded_client_ip(client):
     assert _stored(bin_id)[0].source_ip == "203.0.113.9"
 
 
-def test_capture_falls_back_to_x_forwarded_for(client):
+def test_capture_ignores_client_supplied_x_forwarded_for(client):
+    # X-Forwarded-For is client-controlled: its leftmost entry is whatever the
+    # sender wrote. Without Fly-Client-IP the socket peer is recorded instead
+    # (TestClient always connects as "testclient").
     bin_id = _make_bin(client)
     client.post(
         f"/in/{bin_id}",
         json={},
         headers={"X-Forwarded-For": "198.51.100.4, 66.241.125.129"},
     )
-    assert _stored(bin_id)[0].source_ip == "198.51.100.4"
+    assert _stored(bin_id)[0].source_ip == "testclient"
